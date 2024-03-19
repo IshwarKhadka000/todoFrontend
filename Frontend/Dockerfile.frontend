@@ -1,0 +1,41 @@
+# First Stage
+FROM node:20.11-slim AS base
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock to install dependencies
+COPY package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn 
+
+# Copy the rest of the application code
+COPY . .
+
+# Second Stage
+FROM base as builder
+
+WORKDIR /app
+
+RUN yarn build
+
+# Third Stage
+FROM  nginx:1.24-bullseye
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
+
+
+
+
+
+
+
+
